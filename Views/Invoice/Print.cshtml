@@ -1,0 +1,96 @@
+@model WarehouseSystem.Models.Invoice
+
+@{
+    Layout = "_PrintLayout";
+    ViewData["Title"] = $"Invoice #{Model.InvoiceId}";
+}
+
+<div class="invoice-print">
+    <div class="header">
+        <h1 class="text-center mb-4">INVOICE</h1>
+        <div class="row mb-4">
+            <div class="col-6">
+                <h5>Customer Details:</h5>
+                <div>Name: @Model.Customer.CustomerName</div>
+                <div>Mobile: @Model.Customer.Mobile</div>
+                <div>Address: @Model.Customer.Address</div>
+            </div>
+            <div class="col-6 text-end">
+                <h5>Invoice Details:</h5>
+                <div>Invoice #: @Model.InvoiceId</div>
+                <div>Date: @Model.DateTime.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Item</th>
+                <th>UOM</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-end">Quantity</th>
+                <th class="text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var line in Model.InvoiceLines.Select((item, index) => new { item, index }))
+            {
+                <tr>
+                    <td>@(line.index + 1)</td>
+                    <td>@line.item.Item.ItemName</td>
+                    <td>@line.item.UnitOfMeasure.UomName</td>
+                    <td class="text-end">@line.item.UnitPrice.ToString("N2")</td>
+                    <td class="text-end">@line.item.Quantity.ToString("N2")</td>
+                    <td class="text-end">@((line.item.UnitPrice * line.item.Quantity).ToString("N2"))</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" class="text-end"><strong>Subtotal:</strong></td>
+                <td class="text-end">@Model.InvoiceTotal.ToString("N2")</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end"><strong>Discount:</strong></td>
+                <td class="text-end">@Model.ManualDiscount.ToString("N2")</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end"><strong>Total:</strong></td>
+                <td class="text-end"><strong>@Model.TotalAfterDiscount.ToString("N2")</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer mt-4">
+        <div class="row">
+            <div class="col-12">
+                <p class="text-center mb-0">Thank you for your business!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .invoice-print {
+            padding: 2rem;
+        }
+
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .invoice-print {
+                padding: 0;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+}

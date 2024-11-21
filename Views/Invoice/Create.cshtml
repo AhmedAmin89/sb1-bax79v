@@ -1,0 +1,167 @@
+@model WarehouseSystem.Models.Invoice
+
+@{
+    ViewData["Title"] = "Create Invoice";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Create" id="invoiceForm">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label asp-for="CustomerId" class="control-label">Customer</label>
+                <select asp-for="CustomerId" asp-items="ViewBag.Customers" class="form-control" id="customerSelect">
+                    <option value="">-- Select Customer --</option>
+                </select>
+                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label asp-for="ManualDiscount" class="control-label">Manual Discount</label>
+                <input asp-for="ManualDiscount" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="ManualDiscount" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Invoice Lines</h5>
+        </div>
+        <div class="card-body">
+            <div id="invoiceLines">
+                <!-- Invoice lines will be added here dynamically -->
+            </div>
+            <button type="button" class="btn btn-secondary" id="addLine">Add Line</button>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="InvoiceTotal" class="control-label">Total</label>
+                <input asp-for="InvoiceTotal" class="form-control" readonly />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="TotalAfterDiscount" class="control-label">Total After Discount</label>
+                <input asp-for="TotalAfterDiscount" class="form-control" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Create Invoice</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            let lineCounter = 0;
+
+            function addInvoiceLine() {
+                const lineHtml = `
+                    <div class="invoice-line border p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Item</label>
+                                    <select name="InvoiceLines[${lineCounter}].ItemId" class="form-control item-select" required>
+                                        <option value="">-- Select Item --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>UOM</label>
+                                    <select name="InvoiceLines[${lineCounter}].UOMId" class="form-control uom-select" required>
+                                        <option value="">-- Select UOM --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Unit Price</label>
+                                    <input type="number" name="InvoiceLines[${lineCounter}].UnitPrice" class="form-control unit-price" step="0.01" required readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Quantity</label>
+                                    <input type="number" name="InvoiceLines[${lineCounter}].Quantity" class="form-control quantity" step="0.01" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger remove-line mt-4">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#invoiceLines').append(lineHtml);
+                lineCounter++;
+            }
+
+            $('#addLine').click(addInvoiceLine);
+
+            $(document).on('click', '.remove-line', function() {
+                $(this).closest('.invoice-line').remove();
+                calculateTotals();
+            });
+
+            $('#customerSelect').change(function() {
+                const customerId = $(this).val();
+                if (customerId) {
+                    $.get(`/Invoice/GetCustomerPriceList/${customerId}`, function(data) {
+                        // Store price list data globally
+                        window.priceList = data;
+                        updatePrices();
+                    });
+                }
+            });
+
+            $(document).on('change', '.item-select, .uom-select', function() {
+                const line = $(this).closest('.invoice-line');
+                updateLinePrice(line);
+            });
+
+            $(document).on('input', '.quantity, #ManualDiscount', calculateTotals);
+
+            function updateLinePrice(line) {
+                const itemId = line.find('.item-select').val();
+                const uomId = line.find('.uom-select').val();
+                
+                if (itemId && uomId && window.priceList) {
+                    const price = window.priceList.find(p => p.itemId == itemId && p.uomId == uomId);
+                    if (price) {
+                        line.find('.unit-price').val(price.price);
+                    }
+                }
+                calculateTotals();
+            }
+
+            function calculateTotals() {
+                let total = 0;
+                $('.invoice-line').each(function() {
+                    const price = parseFloat($(this).find('.unit-price').val()) || 0;
+                    const quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                    total += price * quantity;
+                });
+
+                const discount = parseFloat($('#ManualDiscount').val()) || 0;
+                const totalAfterDiscount = total - discount;
+
+                $('#InvoiceTotal').val(total.toFixed(2));
+                $('#TotalAfterDiscount').val(totalAfterDiscount.toFixed(2));
+            }
+
+            // Add first line by default
+            addInvoiceLine();
+        });
+    </script>
+}

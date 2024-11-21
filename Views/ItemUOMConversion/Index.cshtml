@@ -1,0 +1,60 @@
+@model IEnumerable<WarehouseSystem.Models.ItemUOMConversion>
+
+@{
+    ViewData["Title"] = "Item UOM Conversions";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>@ViewData["Title"]</h1>
+    <a asp-action="Create" class="btn btn-primary">Create New Conversion</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>From UOM</th>
+            <th>To UOM</th>
+            <th>Conversion Rate</th>
+            <th>Created By</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Item.ItemName</td>
+                <td>@item.FromUOM.UomName</td>
+                <td>@item.ToUOM.UomName</td>
+                <td>@item.ConversionRate</td>
+                <td>@item.CreatedBy</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ConversionId" class="btn btn-primary btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.ConversionId" class="btn btn-info btn-sm">Details</a>
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal@(item.ConversionId)">Delete</button>
+                </td>
+            </tr>
+
+            <div class="modal fade" id="deleteModal@(item.ConversionId)" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this conversion?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form asp-action="Delete" asp-route-id="@item.ConversionId" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </tbody>
+</table>

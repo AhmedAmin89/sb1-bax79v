@@ -1,0 +1,28 @@
+@model WarehouseSystem.Models.PriceList
+
+@{
+    ViewData["Title"] = "Create Price List";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div class="form-group mb-3">
+                <label asp-for="PriceListName" class="control-label">Name</label>
+                <input asp-for="PriceListName" class="form-control" />
+                <span asp-validation-for="PriceListName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

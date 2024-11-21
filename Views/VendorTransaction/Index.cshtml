@@ -1,0 +1,40 @@
+@model IEnumerable<WarehouseSystem.Models.VendorTransaction>
+
+@{
+    ViewData["Title"] = "Vendor Transactions";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>@ViewData["Title"]</h1>
+    <a asp-action="Create" class="btn btn-primary">Create New Transaction</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Vendor</th>
+            <th>Warehouse</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Transaction Time</th>
+            <th>Created By</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Vendor.VendorName</td>
+                <td>@item.Warehouse.WarehouseName</td>
+                <td>@item.Item.ItemName</td>
+                <td>@item.Quantity</td>
+                <td>@item.TransactionTime.ToString("g")</td>
+                <td>@item.CreatedBy</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.TransactionId" class="btn btn-info btn-sm">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

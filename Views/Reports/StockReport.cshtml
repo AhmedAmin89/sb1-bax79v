@@ -1,0 +1,39 @@
+@model IEnumerable<WarehouseSystem.ViewModels.StockReportViewModel>
+
+@{
+    ViewData["Title"] = "Stock Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>@ViewData["Title"]</h1>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Default UOM</th>
+                @foreach (var warehouse in Model.FirstOrDefault()?.WarehouseStock ?? Enumerable.Empty<WarehouseStockViewModel>())
+                {
+                    <th>@warehouse.WarehouseName</th>
+                }
+                <th>Total Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ItemName</td>
+                    <td>@item.DefaultUOM</td>
+                    @foreach (var stock in item.WarehouseStock)
+                    {
+                        <td>@stock.Stock.ToString("N2")</td>
+                    }
+                    <td>@item.TotalStock.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

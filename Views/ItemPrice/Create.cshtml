@@ -1,0 +1,52 @@
+@model WarehouseSystem.Models.ItemPrice
+
+@{
+    ViewData["Title"] = "Create Item Price";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div class="form-group mb-3">
+                <label asp-for="ItemId" class="control-label">Item</label>
+                <select asp-for="ItemId" asp-items="ViewBag.Items" class="form-control">
+                    <option value="">-- Select Item --</option>
+                </select>
+                <span asp-validation-for="ItemId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PriceListId" class="control-label">Price List</label>
+                <select asp-for="PriceListId" asp-items="ViewBag.PriceLists" class="form-control">
+                    <option value="">-- Select Price List --</option>
+                </select>
+                <span asp-validation-for="PriceListId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="UOMId" class="control-label">Unit of Measure</label>
+                <select asp-for="UOMId" asp-items="ViewBag.UOMs" class="form-control">
+                    <option value="">-- Select UOM --</option>
+                </select>
+                <span asp-validation-for="UOMId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
